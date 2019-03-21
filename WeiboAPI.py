@@ -94,7 +94,5 @@ def main():
     # get_fans_api_data(client)
     get_weibos_api_data(client)
 
-
-
 if __name__ == '__main__':
     main()
