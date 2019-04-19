@@ -27,7 +27,61 @@ in_reply_to_user_id text,in_reply_to_screen_name text, mid text, reposts_count i
     cursor.execute(sql_user)
     cursor.close()
 
-# 插入微博信息
+# 批量插入微博信息
+def insert_weibo_batch(wbList):
+    # '''创建一个数据库，文件名'''
+    conn = sqlite3.connect('test.db')
+    # '''创建游标'''
+    cursor = conn.cursor()
+    for n in range(0, 100000):
+        sql = ''' insert into weibos
+                          (created_at, id, text, source, favorited, truncated, in_reply_to_status_id,in_reply_to_user_id, in_reply_to_screen_name,
+                           mid, reposts_count, comments_count, user)
+                          values
+                          (?,?,?,?,?,?,?,?,?,?,?,?,?);'''
+        data = []
+        for wb in wbList:
+            data.append((wb.created_at, wb.id, wb.text, wb.source, wb.favorited, wb.truncated, wb.in_reply_to_status_id,
+                         wb.in_reply_to_user_id,
+                         wb.in_reply_to_screen_name, wb.mid, wb.reposts_count, wb.comments_count, wb.user))
+        sql = sql[:-1] + ';'
+        cursor.executemany(sql, data)
+
+    conn.commit()
+    # print 'inserted'
+    # '''使用游标关闭数据库的链接'''
+    cursor.close()
+
+#批量插入微博2
+def insert_weibo_batch2(wbList):
+    # '''创建一个数据库，文件名'''
+    conn = sqlite3.connect('test.db')
+    # '''创建游标'''
+    cursor = conn.cursor()
+    sql = ''' insert into weibos
+                  (created_at, id, text, source, favorited, truncated, in_reply_to_status_id,in_reply_to_user_id, in_reply_to_screen_name,
+                   mid, reposts_count, comments_count, user)
+                  values
+                  (:created_at, :id, :text, :source, :favorited, :truncated, :in_reply_to_status_id, :in_reply_to_user_id, :in_reply_to_screen_name,
+                   :mid, :reposts_count, :comments_count, :user)'''
+    for n in range(0, 100000):
+        for wb in wbList:
+            cursor.execute(sql, {'created_at': wb.created_at, 'id': wb.id, 'text': wb.text, 'source': wb.source,
+                                 'favorited': wb.favorited,
+                                 'truncated': wb.truncated,
+                                 'in_reply_to_status_id': wb.in_reply_to_status_id,
+                                 'in_reply_to_user_id': wb.in_reply_to_user_id,
+                                 'in_reply_to_screen_name': wb.in_reply_to_screen_name,
+                                 'mid': wb.mid, 'reposts_count': wb.reposts_count, 'comments_count': wb.comments_count,
+                                 'user': wb.user
+                                 })
+
+    conn.commit()
+    # print 'inserted'
+    # '''使用游标关闭数据库的链接'''
+    cursor.close()
+
+#插入微博
 def insert_weibo(created_at,  id, text, source, favorited, truncated, in_reply_to_status_id,in_reply_to_user_id,
 in_reply_to_screen_name, mid, reposts_count, comments_count, user):
     # '''创建一个数据库，文件名'''
@@ -46,7 +100,7 @@ in_reply_to_screen_name, mid, reposts_count, comments_count, user):
                          'mid': mid, 'reposts_count': reposts_count,'comments_count': comments_count, 'user': user
                          })
     conn.commit()
-    print 'inserted'
+    # print 'inserted'
     # '''使用游标关闭数据库的链接'''
     cursor.close()
 
@@ -126,7 +180,36 @@ def insert_tag(id, tags):
     # '''使用游标关闭数据库的链接'''
     cursor.close()
 
+#批量插入粉丝信息
+def insert_fans_batch(fanList):
+    # '''创建一个数据库，文件名'''
+    conn = sqlite3.connect('test.db')
+    # '''创建游标'''
+    cursor = conn.cursor()
+    sql = '''insert into fans
+                  (id, idstr, screen_name, name, province, city, location, description, url, profile_image_url, profile_url, domain, weihao, gender, followers_count, 
+                  friends_count, statuses_count, favourites_count, created_at, following, allow_all_act_msg, geo_enabled, verified, verified_type, remark, status_id, 
+                  allow_all_comment, avatar_large, verified_reason, follow_me, online_status, bi_followers_count, lang, star, mbtype, mbrank, block_word, tags)
+                  values
+                  (:id, :idstr, :screen_name, :name, :province, :city, :location, :description, :url, :profile_image_url, :profile_url, :domain, :weihao, :gender, 
+                  :followers_count, :friends_count, :statuses_count, :favourites_count, :created_at, :following, :allow_all_act_msg, :geo_enabled, :verified, 
+                  :verified_type, :remark, :status_id, :allow_all_comment, :avatar_large, :verified_reason, :follow_me, :online_status, :bi_followers_count, :lang, 
+                  :star, :mbtype, :mbrank, :block_word, :tags)'''
+    for n in range(0, 400000):
+        for fan in fanList:
+            cursor.execute(sql, {'id': fan.id, 'idstr': fan.idstr, 'screen_name': fan.screen_name, 'name': fan.name, 'province': fan.province, 'city': fan.city, 'location': fan.location, 'description': fan.description,
+                         'url': fan.url, 'profile_image_url': fan.profile_image_url, 'profile_url': fan.profile_url, 'domain': fan.domain, 'weihao': fan.weihao, 'gender': fan.gender,
+                         'followers_count': fan.followers_count, 'friends_count': fan.friends_count, 'statuses_count': fan.statuses_count, 'favourites_count': fan.favourites_count,
+                         'created_at': fan.created_at, 'following': fan.following, 'allow_all_act_msg': fan.allow_all_act_msg, 'geo_enabled': fan.geo_enabled, 'verified': fan.verified,
+                         'verified_type': fan.verified_type, 'remark': fan.remark, 'status_id': fan.status_id, 'allow_all_comment': fan.allow_all_comment, 'avatar_large': fan.avatar_large,
+                         'avatar_large': fan.avatar_large, 'verified_reason': fan.verified_reason, 'follow_me': fan.follow_me, 'online_status': fan.online_status, 'bi_followers_count': fan.bi_followers_count,
+                         'lang': fan.lang, 'star': fan.star, 'mbtype': fan.mbtype, 'mbrank': fan.mbrank, 'block_word': fan.block_word, 'tags': fan.tags
+                                 })
 
+    conn.commit()
+    # print 'inserted'
+    # '''使用游标关闭数据库的链接'''
+    cursor.close()
 
 #插入粉丝信息
 def insert_fan(id, idstr, screen_name, name, province, city, location, description, url, profile_image_url, profile_url, domain, weihao, gender, followers_count,
